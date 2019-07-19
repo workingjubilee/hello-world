@@ -1,86 +1,429 @@
-<!doctype html>
-
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Conway's Game of Life</title>
+  <link href="https://fonts.googleapis.com/css?family=Alegreya:400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Rubik:500&display=swap" rel="stylesheet">
+  <style>
+    main {
+      display: grid;
+      grid-template-columns: 45% 45%;
+      grid-template-rows: 1fr;
+    }
+    .controls {
+      padding: 5px;
+    }
+  .controls > button {
+    background-color: midnightblue;
+    border-color: blue;
+    color: white;
 
-  <title>Sprint Challenge - Home</title>
+  }
+  .comment {
+    padding: 10px 10px 20px 20px;
+    margin: 0 auto;
+  }
+  body > * {
+    font-family: 'Alegreya', 'Courier New', serif;
 
-  <link href="https://fonts.googleapis.com/css?family=Roboto|Rubik" rel="stylesheet">
-  <link rel="stylesheet" href="css/index.css">
+  }
+  h1,button {
+      font-family: 'Rubik', 'Helvetica', sans-serif;
+      font-weight: 500;
+  }
 
+</style>
 </head>
-
 <body>
-    <div class="container">
-        <header>
-          <nav>
-            <img .lambdalogo src="img/lambda-black.png" />
-            <a href="index.html">Home</a>
-            <a href="about.html">About</a>
-            <a href="#">Products</a>
-            <a href="#">Blog</a>
-            <a href="contact.html">Contact</a>
-          </nav>
-          <img .indexheader src="img/jumbo.jpg" />
-        </header>
+  <header><h1>Conway's Game of Life</header>
+  <main>
 
-        <section class="top-content">
-            <div class="text-container">
-                <h2>The Future</h2>
-                <p>Proin sed quam sed tellus vestibulum ultrices quis in nunc. Phasellus id dui id tortor tincidunt efficitur. Proin faucibus imperdiet erat, non varius lacus. Maecenas non nisl id turpis egestas tincidunt. Nam condimentum venenatis magna eget finibus.</p>
-            </div>
-            <div class="text-container">
-                <h2>The Past</h2>
-                <p>Proin sed quam sed tellus vestibulum ultrices quis in nunc. Phasellus id dui id tortor tincidunt efficitur. Proin faucibus imperdiet erat, non varius lacus. Maecenas non nisl id turpis egestas tincidunt. Nam condimentum venenatis magna eget finibus.</p>
-            </div>
-        </section>
+    <section class="theater">
+    <canvas id="foreground" style="box-sizing:border-box;min-width: 400px; width: 600px; max-width: 600px; min-height: 400px; height: 600px; max-height: 600px; padding: 10px"></canvas>
+    <!-- <canvas id="background" style="box-sizing:border-box;width: 800px; max-width: 800px; height: 800px; max-height: 800px;"></canvas> -->
 
-        <section class="middle-content">
+  <section class="controls">
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
+    <button id="randomize">Random</button>
+    <button id="clear">Clear</button>
+  </section>
+    </section>
+    <section class="comment">
+  <p>
+    Conway's Game of Life provided the opportunity to finally get up and write some Matrix classes I had been meaning to draft for various JS purposes. Unfortunately it also introduced me to the reason why Knuth said "Premature optimization is the root of all evil." The algorithm is implemented by a so-called "Sparse Matrix", anticipating most of the values being undefined or some other default value, like 0, and only saving the ones that are necessary. This is a favored technique for a lot of matrix operations, but in this case, it is strictly overkill, as it allows the animations to render insanely fast... too fast to easily enjoy and watch.
+  </p>
+  <p>
+    Drawing the "life" with the Canvas API also provided a lot of challenges, because it is new to me! Not only is throttling it a bit difficult, so it prefers to render at V8's default speed of "blazing fast" even when a slower render would be desireable, but while seemingly simple, it has very particular rules about how things are drawn on it and how the canvas can be cleared to set up the next draw. In addition, it turns out that implementing relatively simple concepts like "detect a click on this location" is not necessarily native to it, unlike with most HTML elements.
+  </p>
+</section>
 
-            <h2>Why Did It Have To Be Boxes...</h2>
+  </main>
+  <script type="text/javascript">
+    class SparseMatrix {
+      constructor(x,y,defaultValue=0) {
+        this.vectors = ['x', 'z']
+        this.ranges = [x,y]
+        // this.size = Object.values(this.vectors).reduce((acc, cum) => acc*cum, 1)
+        this.defaultValue = defaultValue
+        this.matrixMap = new Map()
+      }
 
-            <div class="boxes">
-                <div class="box box1">Box 1</div>
-                <div class="box box2">Box 2</div>
-                <div class="box box3">Box 3</div>
-                <div class="box box4">Box 4</div>
-                <div class="box box5">Box 5</div>
-                <div class="box box6">Box 6</div>
-                <div class="box box7">Box 7</div>
-                <div class="box box8">Box 8</div>
-                <div class="box box9">Box 9</div>
-                <div class="box box10">Box 10</div>
-            </div>
+      matchArrays(first,second) {
+        if (first.length !== second.length) {
+          return false
+        } else { }
 
-        </section>
+        for (let [i] in first) {
+          if (first[i] !== second[i]) {
+            return false
+          } else { }
+        }
 
-        <section class="bottom-content">
+        return true
+      }
 
-            <div class="text-container">
-                <h2>That's</h2>
-                <p>Phasellus id dui id tortor tincidunt efficitur. Proin sed quam sed tellus vestibulum ultrices quis in nunc.</p>
-            </div>
-            <div class="text-container">
-                <h2>No</h2>
-                <p>Phasellus id dui id tortor tincidunt efficitur. Proin sed quam sed tellus vestibulum ultrices quis in nunc.</p>
-            </div>
-            <div class="text-container">
-                <h2>Moon</h2>
-                <p>Phasellus id dui id tortor tincidunt efficitur. Proin sed quam sed tellus vestibulum ultrices quis in nunc.</p>
-            </div>
+      addMatrix(matrix) {
+        if (!(this.matchArrays(this.vectors, matrix.vectors))) {
+          return false
+        } else if (!(this.matchArrays(this.ranges, matrix.ranges))) {
+          return false
+        } else { }
 
-        </section>
+        for (let c of matrix.matrixMap.keys()) {
+          for (let [r] of matrix.matrixMap.get(c)) {
+            let value = matrix.getElement(c,r) + this.getElement(c,r)
+            this.setElement(c,r, value)
+          }
+        }
+        return this.renderMatrix()
+      }
 
-        <footer>
-            <nav>
-              <a href="index.html">Home</a>
-              <a href="about.html">About</a>
-              <a href="#">Products</a>
-              <a href="#">Blog</a>
-              <a href="contact.html">Contact</a>
-            </nav>
-        </footer>
-    </div><!-- container -->
+      find(...locations) {
+        /* This matches all queries to actual locations in the matrix. */
+        /* It implements a "toroid" logic rather than "falling off the edge". */
+        for (let [i] in locations) {
+          if (locations[i] < 0) {
+            locations[i] = (this.ranges[i] + (locations[i]%this.ranges[i])) % this.ranges[i]
+          } else if (locations[i] >= this.ranges[i]) {
+            locations[i] = locations[i] % this.ranges[i]
+          } else { }
+        }
+
+        return locations
+      }
+
+      findSubmatrix(start, end, ...rest) {
+        /* Returns locations on the matrix between start and end, inclusive. */
+        if (!([start, end].every(point => point.length === this.vectors.length))) {
+          throw Error("Invalid submatrix get!")
+        } else { }
+
+        start = this.find(...start)
+        end = this.find(...end)
+
+        const submatrixLocations = []
+        const ranges = {}
+        for (let [i] in this.vectors) {
+          ranges[this.vectors[i]] = []
+        }
+        
+
+        for (let [i] in start) {
+          if (start[i] > end[i]) {
+            for (let j = start[i]; j < this.ranges[i]; j++) {
+              ranges[this.vectors[i]].push(j)
+            }
+            for (let j = 0; j <= end[i]; j++) {
+              ranges[this.vectors[i]].push(j)
+            }
+          } else {
+            for (let j = start[i]; j <= end[i]; j++) {
+              ranges[this.vectors[i]].push(j)
+            }
+          }
+        }
+
+        let buffer = []
+        for (let i = 0, iLimit = ranges[this.vectors[0]].length; i < iLimit; i++) {
+          for (let j = 0, jLimit = ranges[this.vectors[0]].length; j < jLimit; j++) {
+            buffer.push(Array.of(ranges[this.vectors[0]][i], ranges[this.vectors[1]][j]))      
+          }
+        }
+        submatrixLocations.push.apply(submatrixLocations, [...buffer.slice()])
+
+        return submatrixLocations
+      }
+
+      getElement(...locations) {
+        locations = this.find(...locations)
+        let last = this.matrixMap
+
+        for (let [i] in locations) {
+          last = last.get(locations[i])
+          if (last === undefined) {
+            return this.defaultValue
+          }
+        }
+
+        return last
+      }
+
+      deleteElement(...args) {
+        let locations = this.find(...args.slice(0,-1))
+        let [target] = args.slice(-1)
+        let last = this.matrixMap
+
+        for (let [i] in locations) {
+          last = last.get(locations[i])
+          if (last === undefined) {
+            return this.defaultValue
+          } else { }
+        }
+
+        last.delete(target)
+      }
+
+      setElement(...args) {
+        const locations = this.find(...args.slice(0,-2))
+        const [key, value] = args.slice(-2)
+        let last = this.matrixMap
+        let next = undefined
+
+        for (let [i] in locations) {
+          next = last.get(locations[i])
+          if (next === undefined) {
+            last.set(locations[i], new Map())
+          }
+          last = last.get(locations[i])
+        }
+
+        return last.set(key,value)
+      }
+
+      addElement(...args) {
+        const locations = this.find(...args.slice(0,-2))
+        const [key, value] = args.slice(-2)
+        const current = this.getElement(...locations, key)
+
+        return this.setElement(...locations, key, current+value)
+      }
+
+      randomInitialization() {
+        for (let col = 0; col < this.ranges[0]; col++) {
+          for (let row = 0; row < this.ranges[1]; row++) {
+            let rand = Math.round(Math.random())
+            if (rand !== 0) {
+              this.setElement(col,row,rand)
+            }
+          }
+        }
+      }
+
+      renderMatrix() {
+        const matrix = new Array(this.ranges[1])
+
+        for (let i = 0, limit = matrix.length; i < limit; i++) {
+          let row = new Array(this.ranges[0]).fill(this.defaultValue)
+          matrix[i] = row
+        }
+
+        for (let c of this.matrixMap.keys()) {
+          for (let [r] of this.matrixMap.get(c)) {
+            matrix[r][c] = this.getElement(c,r)
+          }
+        }
+
+        return matrix
+      }
+    }
+
+    class GameOfLife extends SparseMatrix {
+      constructor(x=15,y=15,defaultValue=0) {
+        super(x,y,defaultValue)
+      }
+
+      getAdjacents(x,y) {
+        const adjacents = this.findSubmatrix([x-1,y-1], [x+1, y+1]).filter(element => (!(this.matchArrays(element, [x,y]))) )
+
+        return adjacents
+      }
+
+      generateLifeWithHeatMap(generation) {
+        this.buildHeatMap(generation)
+
+        for (let c of generation.matrixMap.keys()) {
+          for (let [r] of generation.matrixMap.get(c)) {
+            let heat = this.getElement(c,r)
+            if (heat === -2 || heat === -3) {
+              this.setElement(c,r,1)
+            } else {
+              this.deleteElement(c,r)
+            }
+          }
+        }
+
+        for (let c of this.matrixMap.keys()) {
+          for (let [r,v] of this.matrixMap.get(c).entries()) {
+            if (this.getElement(c,r) === -3) {
+              this.setElement(c,r,1)
+            } else if (this.getElement(c,r) < 0) {
+              this.deleteElement(c,r)
+            }
+          }
+        }
+
+        return this.renderMatrix()
+      }
+
+      buildHeatMap(generation) {
+        this.matrixMap = new Map()
+
+        for (let c of generation.matrixMap.keys()) {
+          for (let [r] of generation.matrixMap.get(c)) {
+            for (let [x,y] of generation.getAdjacents(c,r)) {
+              this.addElement(x,y,-1)
+            }
+          }
+        }
+      }
+    }
+
+      class GameRenderer {
+        constructor(setup) {
+          this.register = parameters.register
+        }
+        bufferFrames() {
+          return
+        }
+      }
+
+      function tessellateCanvas(canvas, divisor) {
+        const intDiv = Math.floor(divisor);
+        const tessellation = { width: Math.floor(canvas.width/intDiv),
+          height: Math.floor(canvas.height/intDiv) }
+
+        return tessellation
+      }
+
+      function prepareLife() {
+        const cells = 15
+        const canvas = document.getElementById('foreground')
+        const { width, height } = tessellateCanvas(canvas, cells)
+        const measure = Math.floor(Math.min(width,height))
+
+        const leftGame = new GameOfLife(cells, cells, 0)
+        const rightGame = new GameOfLife(cells, cells, 0)
+
+        const setup = {
+          cells,
+          canvas,
+          "life0": leftGame,
+          "life1": rightGame,
+          measure
+        }
+
+        // setup["cells"] = cells
+        // setup["canvas"] = canvas
+        // setup["life0"] = leftGame
+        // setup["life1"] = rightGame
+        // setup["measure"] = measure
+
+        return setup
+      }
+
+      const setup = prepareLife();
+
+
+      function generateLife(gameData) {
+        if (gameData["gen"] === undefined) {
+          gameData["gen"] = 0
+        } else {
+          gameData["gen"] += 1
+        }
+        let { gen, cells, measure } = gameData
+
+        let readFrom = gameData[`life${gen%2}`]
+        let writeTo = gameData[`life${(gen+1)%2}`]
+
+        writeTo.generateLifeWithHeatMap(readFrom)
+
+        return gameData
+      }
+
+      let interrupt
+      let gameRunning = false
+
+      async function renderLife(gameData, once=false) {
+        const newData = generateLife(setup)
+        const { gen, canvas, measure } = newData;
+        const thisGen = newData[`life${(gen+1)%2}`]
+        const ctx = canvas.getContext('2d')
+
+        ctx.strokeStyle = 'blue'
+        ctx.fillStyle = 'black'
+        ctx.clearRect(0,0, canvas.width,canvas.height)
+        ctx.beginPath()
+        let life = null
+
+        for (let col of thisGen.matrixMap.keys()) {
+          for (let [row] of thisGen.matrixMap.get(col)) {
+            life = thisGen.getElement(col,row)
+
+            if (life > 0) {
+              ctx.rect(col*measure, row*measure, measure, measure)
+              ctx.stroke()
+              ctx.fill()
+            }
+          }
+        }
+
+        if (once === true || life === null) {
+          gameRunning = false
+
+          return cancelAnimationFrame(interrupt)
+        } else {
+          interrupt = requestAnimationFrame(renderLife)
+        }
+      }
+
+      setup.canvas.addEventListener('click', () => {
+
+      })
+
+      const startButton = document.getElementById("start")
+      const stopButton = document.getElementById("stop")
+      const randomButton = document.getElementById("randomize")
+      const clearButton = document.getElementById("clear")
+
+
+      startButton.addEventListener('click', () => {
+        renderLife(setup)
+        gameRunning = true
+      })
+
+      stopButton.addEventListener('click', () => {
+        if (interrupt !== undefined) {
+          cancelAnimationFrame(interrupt)
+          gameRunning = false
+        }
+      })
+      randomButton.addEventListener('click', () => {
+        if (gameRunning === false) {
+          setup.life0.randomInitialization()
+          setup.life1.randomInitialization()
+          renderLife(setup, once=true)
+        }
+      })
+
+      clearButton.addEventListener('click', () => {
+        if (gameRunning === false) {
+          setup.life0.matrixMap = new Map()
+          setup.life1.matrixMap = new Map()
+          renderLife(setup, once=true)
+        }
+      })
+      </script>
 </body>
 </html>
